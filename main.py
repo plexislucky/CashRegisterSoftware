@@ -4,18 +4,25 @@ from tkinter import *
 # ------ CUSTOM WIDGETS START ------
 
 class CustomButton:
-    def __init__(self, x, y, **kwargs) -> None:
+    def __init__(self, x: int, y: int, width: int = 50, height: int = 50, **kwargs) -> None:
         self.x: int = x
         self.y: int = y
-        self.kwargs = kwargs
+        self.width: int = width
+        self.height: int = height
+        self.kwargs: dict = kwargs
 
         if "command" in kwargs:
             self.command = kwargs["command"]
 
-        canvas.create_rectangle(self.x, self.y, self.x+50, self.y+50, outline="black", fill="gray")
+        if "fill" in kwargs:
+            self.fill = kwargs["fill"]
+        else:
+            self.fill = "gray"
+
+        canvas.create_rectangle(self.x, self.y, self.x+self.width, self.y+self.height, outline="black", fill=self.fill)
 
         if "text" in kwargs:
-            canvas.create_text((self.x+25.5, self.y+25.5), text=kwargs["text"], anchor=CENTER, fill="black", font=("Helvetica 12")) 
+            canvas.create_text((self.x+(self.width/2), self.y+(self.height/2)), text=kwargs["text"], anchor=CENTER, fill="black", font=("Helvetica 12")) 
             
 
     def OnMouseRelease(self):
@@ -36,14 +43,29 @@ def ClickHandler(event): # This method only gets called on LEFT click
 root = Tk()
 root.title("v2")
 root.geometry("500x500")
+root.resizable(False, False) # please excuse my dope ass swag
 
 canvas = Canvas(root, width=500, height=500)
 canvas.place(x=0, y=0)
 
-# I have no idea why my button list has to be in the middle of this shit bro
+# C++ developers fear my long ass manually-filled lists...
 buttons: list[CustomButton] = [
-    CustomButton(10, 10, text="CLR", command=lambda: print("CLR")),
-    CustomButton(150, 150)
+    CustomButton(0, 0, text="7", command=lambda: print(7)),
+    CustomButton(51, 0, text="8", command=lambda: print(8)),
+    CustomButton(102, 0, text="9", command=lambda: print(9)),
+    CustomButton(0, 51, text="4"),
+    CustomButton(51, 51, text="5"),
+    CustomButton(102, 51, text="6"),
+    CustomButton(0, 102, text="1"),
+    CustomButton(51, 102, text="2"),
+    CustomButton(102, 102, text="3"),
+    CustomButton(0, 153, text="0"),
+    CustomButton(51, 153, text="."),
+    CustomButton(102, 153, width=151, text="Cash payment", fill="lime"),
+    CustomButton(153, 102, width=100, text="Total"),
+    CustomButton(153, 51, width=100, text="Cancel last", fill="red"),
+    CustomButton(153, 0, width=100, text="CLEAR", fill="red"),
+    
 ]
 
 root.bind("<Button-1>", ClickHandler)
