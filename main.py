@@ -1,6 +1,7 @@
 from tkinter import *
 
 NUMBER_FIELD_CONTENT: str = ""
+ITEM_PRICES: list[float] = list()
 # ------ CUSTOM WIDGETS START ------
 
 class CustomButton:
@@ -34,13 +35,30 @@ class CustomButton:
 def ClickHandler(event): # This method only gets called on LEFT click
     global buttons
     for button in buttons:
-        if event.x >= button.x and event.y >= button.y and event.x <= button.x+50 and event.y <= button.y+50:
+        if event.x >= button.x and event.y >= button.y and event.x <= button.x+button.width and event.y <= button.y+button.height:
             button.OnMouseRelease()
+
+def RemoveFromInputField():
+    global NUMBER_FIELD_CONTENT
+    NUMBER_FIELD_CONTENT = NUMBER_FIELD_CONTENT[:-1]
+    canvas.itemconfig(numberFieldText, text=NUMBER_FIELD_CONTENT)
 
 def AddToInputField(value: str):
     global NUMBER_FIELD_CONTENT
-    NUMBER_FIELD_CONTENT += value
-    canvas.itemconfig(numberFieldText, text=NUMBER_FIELD_CONTENT)
+
+    if "." in NUMBER_FIELD_CONTENT and len(NUMBER_FIELD_CONTENT.split(".")[1]) == 2: # No more than 2 decimal places
+        return
+    
+    if value == "." and "." in NUMBER_FIELD_CONTENT: # No more than 1 period symbol
+        return
+    
+    if len(NUMBER_FIELD_CONTENT) < 14: # Character limit: 14
+        if len(NUMBER_FIELD_CONTENT) == 0 and value == ".": # Add 0 before decimal if decimal is first input
+            NUMBER_FIELD_CONTENT += "0."
+        else:
+            NUMBER_FIELD_CONTENT += value
+
+        canvas.itemconfig(numberFieldText, text=NUMBER_FIELD_CONTENT)
 
 
 
@@ -72,8 +90,8 @@ buttons: list[CustomButton] = [
     CustomButton(51, 153, text=".", command=lambda: AddToInputField(".")),
     CustomButton(102, 153, width=151, text="Cash payment", fill="lime"),
     CustomButton(153, 102, width=100, text="Total"),
-    CustomButton(153, 51, width=100, text="Cancel last", fill="red"),
-    CustomButton(153, 0, width=100, text="CLEAR", fill="red"),
+    CustomButton(153, 51, width=100, text="CANCEL", fill="red"),
+    CustomButton(153, 0, width=100, text="CLEAR", fill="red", command=RemoveFromInputField),
     
 ]
 
