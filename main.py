@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 
 NUMBER_FIELD_CONTENT: str = ""
 ITEM_PRICES: list[float] = list()
@@ -80,10 +81,32 @@ def CancelTransaction():
 
     canvas.itemconfig(numberFieldText, text="")
 
+def CashPayment():
+    global NUMBER_FIELD_CONTENT, ITEM_PRICES
+
+    try:
+        finalCost: float = sum(ITEM_PRICES)
+        cashGiven: float = float(NUMBER_FIELD_CONTENT)
+
+
+        if cashGiven >= finalCost:
+            NUMBER_FIELD_CONTENT = "Change: " + "{:.2f}".format(cashGiven - finalCost)
+            canvas.itemconfig(numberFieldText, text=NUMBER_FIELD_CONTENT)
+        else:
+            raise Exception("InsufficientFunds")
+        
+    except Exception as e:
+        if str(e) == "InsufficientFunds":
+            messagebox.showerror("Insufficient funds", "The payment is less than the cost of the items!")
+        else:
+            messagebox.showerror("An exception occurred", str(e))
+
+            
+
 # ------ TKINTER BOILERPLATE BULLSHIT BELOW ------
 
 root = Tk()
-root.title("v2")
+root.title("Cash register software")
 root.geometry("500x500")
 root.resizable(False, False) # please excuse my dope ass swag
 
@@ -106,10 +129,10 @@ buttons: list[CustomButton] = [
     CustomButton(0, 153, text="0", command=lambda: AddToInputField("0")),
     CustomButton(51, 153, text="00", command=lambda: AddToInputField("00")),
     CustomButton(102, 153, text=".", command=lambda: AddToInputField(".")),
-    CustomButton(0, 204, width=253, text="Cash payment", fill="lime"),
+    CustomButton(0, 204, width=253, text="Cash payment", fill="lime", command=CashPayment),
     CustomButton(153, 102, width=100, text="Add", command=AddItem),
     CustomButton(153, 153, width=100, text="Total", command=DisplayTotal),
-    CustomButton(153, 51, width=100, text="CANCEL", fill="red", command=CancelTransaction),
+    CustomButton(153, 51, width=100, text="RESET", fill="red", command=CancelTransaction),
     CustomButton(153, 0, width=100, text="CLEAR", fill="red", command=RemoveFromInputField),
     
 ]
