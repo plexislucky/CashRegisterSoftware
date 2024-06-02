@@ -97,5 +97,3 @@ buttons: list[CustomButton] = [
 
 root.bind("<Button-1>", ClickHandler)
 root.mainloop()
-
-# Commit and push testing from Git CLI
