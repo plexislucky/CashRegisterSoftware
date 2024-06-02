@@ -53,7 +53,7 @@ def AddToInputField(value: str):
         return
     
     if len(NUMBER_FIELD_CONTENT) < 14: # Character limit: 14
-        if len(NUMBER_FIELD_CONTENT) == 0 and value == ".": # Add 0 before decimal if decimal is first input
+        if len(NUMBER_FIELD_CONTENT) == 0 and (value == "." or value == "00"):
             NUMBER_FIELD_CONTENT += "0."
         else:
             NUMBER_FIELD_CONTENT += value
@@ -61,7 +61,24 @@ def AddToInputField(value: str):
         canvas.itemconfig(numberFieldText, text=NUMBER_FIELD_CONTENT)
 
 
+def AddItem():
+    global NUMBER_FIELD_CONTENT, ITEM_PRICES
 
+    ITEM_PRICES.append(float(NUMBER_FIELD_CONTENT))
+    NUMBER_FIELD_CONTENT = ""
+
+    canvas.itemconfig(numberFieldText, text="")
+
+def DisplayTotal():
+    global ITEM_PRICES
+    canvas.itemconfig(numberFieldText, text="{:.2f}".format(sum(ITEM_PRICES)))
+
+def CancelTransaction():
+    global NUMBER_FIELD_CONTENT, ITEM_PRICES
+    NUMBER_FIELD_CONTENT = ""
+    ITEM_PRICES.clear()
+
+    canvas.itemconfig(numberFieldText, text="")
 
 # ------ TKINTER BOILERPLATE BULLSHIT BELOW ------
 
@@ -87,10 +104,12 @@ buttons: list[CustomButton] = [
     CustomButton(51, 102, text="2", command=lambda: AddToInputField("2")),
     CustomButton(102, 102, text="3", command=lambda: AddToInputField("3")),
     CustomButton(0, 153, text="0", command=lambda: AddToInputField("0")),
-    CustomButton(51, 153, text=".", command=lambda: AddToInputField(".")),
-    CustomButton(102, 153, width=151, text="Cash payment", fill="lime"),
-    CustomButton(153, 102, width=100, text="Total"),
-    CustomButton(153, 51, width=100, text="CANCEL", fill="red"),
+    CustomButton(51, 153, text="00", command=lambda: AddToInputField("00")),
+    CustomButton(102, 153, text=".", command=lambda: AddToInputField(".")),
+    CustomButton(0, 204, width=253, text="Cash payment", fill="lime"),
+    CustomButton(153, 102, width=100, text="Add", command=AddItem),
+    CustomButton(153, 153, width=100, text="Total", command=DisplayTotal),
+    CustomButton(153, 51, width=100, text="CANCEL", fill="red", command=CancelTransaction),
     CustomButton(153, 0, width=100, text="CLEAR", fill="red", command=RemoveFromInputField),
     
 ]
