@@ -1,7 +1,9 @@
 from tkinter import *
 from tkinter import messagebox
+import time
 
 NUMBER_FIELD_CONTENT: str = ""
+ITEM_LIST_TEXTBOX_CONTENT: str = ""
 ITEM_PRICES: list[float] = list()
 # ------ CUSTOM WIDGETS START ------
 
@@ -42,6 +44,7 @@ def ClickHandler(event): # This method only gets called on LEFT click
 def RemoveFromInputField():
     global NUMBER_FIELD_CONTENT
     NUMBER_FIELD_CONTENT = NUMBER_FIELD_CONTENT[:-1]
+
     canvas.itemconfig(numberFieldText, text=NUMBER_FIELD_CONTENT)
 
 def AddToInputField(value: str):
@@ -63,11 +66,19 @@ def AddToInputField(value: str):
 
 
 def AddItem():
-    global NUMBER_FIELD_CONTENT, ITEM_PRICES
+    global NUMBER_FIELD_CONTENT, ITEM_PRICES, ITEM_LIST_TEXTBOX_CONTENT
 
     ITEM_PRICES.append(float(NUMBER_FIELD_CONTENT))
     NUMBER_FIELD_CONTENT = ""
 
+    ITEM_LIST_TEXTBOX_CONTENT = ""
+
+    for i in ITEM_PRICES:
+        ITEM_LIST_TEXTBOX_CONTENT += "{:.2f}".format(i) + "\n"
+
+    ITEM_LIST_TEXTBOX_CONTENT += "\nTotal: " + "{:.2f}".format(sum(ITEM_PRICES))
+
+    canvas.itemconfig(totalItemListText, text=ITEM_LIST_TEXTBOX_CONTENT)
     canvas.itemconfig(numberFieldText, text="")
 
 def DisplayTotal():
@@ -75,11 +86,26 @@ def DisplayTotal():
     canvas.itemconfig(numberFieldText, text="{:.2f}".format(sum(ITEM_PRICES)))
 
 def CancelTransaction():
-    global NUMBER_FIELD_CONTENT, ITEM_PRICES
+    global NUMBER_FIELD_CONTENT, ITEM_PRICES, ITEM_LIST_TEXTBOX_CONTENT
     NUMBER_FIELD_CONTENT = ""
     ITEM_PRICES.clear()
+    ITEM_LIST_TEXTBOX_CONTENT = ""
 
+    canvas.itemconfig(totalItemListText, text=ITEM_LIST_TEXTBOX_CONTENT)
     canvas.itemconfig(numberFieldText, text="")
+
+def LogTransaction(itemPrices: list, cashGiven: float):
+    # transactions.dat format: unixSeconds:ITEM_PRICES:cashGiven
+    logData = str(int(time.time())) + ":" # no decimals allowed in my unix timestamp >:)
+    
+    for i in itemPrices:
+        logData += str(i) + ","
+
+    logData = logData[:-1]
+    logData += f":{cashGiven}"
+        
+    with open("transactions.dat", "a") as transactionLog:
+        transactionLog.write(logData)
 
 def CashPayment():
     global NUMBER_FIELD_CONTENT, ITEM_PRICES
@@ -88,10 +114,11 @@ def CashPayment():
         finalCost: float = sum(ITEM_PRICES)
         cashGiven: float = float(NUMBER_FIELD_CONTENT)
 
-
         if cashGiven >= finalCost:
             NUMBER_FIELD_CONTENT = "Change: " + "{:.2f}".format(cashGiven - finalCost)
             canvas.itemconfig(numberFieldText, text=NUMBER_FIELD_CONTENT)
+                
+            LogTransaction(ITEM_PRICES, cashGiven)
         else:
             raise Exception("InsufficientFunds")
         
@@ -114,6 +141,7 @@ canvas = Canvas(root, width=500, height=500)
 canvas.place(x=0, y=0)
 
 numberFieldText = canvas.create_text(490, 0, text=NUMBER_FIELD_CONTENT, font=("Helvetica 22"), anchor=NE)
+totalItemListText = canvas.create_text(260, 50, text=ITEM_LIST_TEXTBOX_CONTENT, font=("Helvetica 16"), anchor=NW)
 
 # C++ developers fear my long ass manually-filled lists...
 buttons: list[CustomButton] = [
