@@ -135,7 +135,7 @@ def CashPayment():
 root = Tk()
 root.title("Cash register software")
 root.geometry("500x500")
-root.resizable(False, False) # please excuse my dope ass swag
+root.resizable(False, False)
 
 canvas = Canvas(root, width=500, height=500)
 canvas.place(x=0, y=0)
@@ -143,7 +143,6 @@ canvas.place(x=0, y=0)
 numberFieldText = canvas.create_text(490, 0, text=NUMBER_FIELD_CONTENT, font=("Helvetica 22"), anchor=NE)
 totalItemListText = canvas.create_text(260, 50, text=ITEM_LIST_TEXTBOX_CONTENT, font=("Helvetica 16"), anchor=NW)
 
-# C++ developers fear my long ass manually-filled lists...
 buttons: list[CustomButton] = [
     CustomButton(0, 0, text="7", command=lambda: AddToInputField("7")),
     CustomButton(51, 0, text="8", command=lambda: AddToInputField("8")),
